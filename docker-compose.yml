@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Redis service for RQ task queue
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data # Persist Redis data (optional)
+
+  # Flask web application service
+  web:
+    build: . # Build the image from the Dockerfile in the current directory
+    restart: always
+    ports:
+      - "5000:5000" # Map host port 5000 to container port 5000
+    depends_on:
+      - redis # Wait for Redis to be available (basic check)
+    volumes:
+      # Mount the downloads directory to the host for easy access/persistence
+      # Use ./downloads on host mapped to /app/downloads in container
+      - ./downloads:/app/downloads
+      # Optional: Mount code for development (reflect changes without rebuilding)
+      # - .:/app
+    environment:
+      # Override environment variables if needed
+      - REDIS_URL=redis://redis:6379
+      - FLASK_DEBUG=0 # Ensure debug is off
+      - ENABLE_FILE_SERVER=true # Example: enable file server here
+      # GUNICORN_CMD_ARGS: "--workers 2 --log-level debug" # Example: Override gunicorn args
+
+  # RQ worker service
+  worker:
+    build: . # Use the same image as the web service
+    restart: always
+    depends_on:
+      - redis
+    volumes:
+      # Mount downloads dir same as web service so worker can write to it
+      - ./downloads:/app/downloads
+      # Optional: Mount code for development
+      # - .:/app
+    environment:
+      - REDIS_URL=redis://redis:6379
+      # Make sure DOWNLOAD_DIR matches web service if not using default
+      # - DOWNLOAD_DIR=/app/downloads
+    # Command to start the RQ worker, listening on the default queue
+    command: rq worker --url ${REDIS_URL:-redis://redis:6379} default
+
+volumes:
+  redis_data: # Define the named volume for Redis persistence

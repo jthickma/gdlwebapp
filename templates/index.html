@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gallery-dl Web UI</title>
+    <style>
+        /* Basic styling */
+        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+        #results { margin-top: 20px; }
+        .job-item { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9; }
+        .job-item pre { background-color: #e9e9e9; padding: 5px; white-space: pre-wrap; word-wrap: break-word; max-height: 200px; overflow-y: auto; font-size: 0.9em;}
+        .status-queued { border-left: 5px solid orange; }
+        .status-started { border-left: 5px solid blue; }
+        .status-finished { border-left: 5px solid green; }
+        .status-failed { border-left: 5px solid red; }
+        .status-error { border-left: 5px solid darkred; } /* For app-level errors */
+        #loading { display: none; margin-left: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>gallery-dl Web UI</h1>
+
+    <form id="download-form">
+        <label for="url">Gallery URL:</label><br>
+        <input type="url" id="url" name="url" size="60" required><br><br>
+        <button type="submit">Start Download</button>
+        <span id="loading">Processing...</span>
+    </form>
+
+    <h2>Download Jobs</h2>
+    <div id="results">
+        </div>
+
+    <hr>
+    <p><a href="/files/" target="_blank">Browse Downloaded Files</a> (Requires ENABLE_FILE_SERVER=true)</p>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
